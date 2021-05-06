@@ -1,10 +1,10 @@
-const {nanoid} = require('nanoid');
+const { nanoid } = require('nanoid');
 const books = require('./books');
 
 const addBookHandler = (request, h) => {
-    const {name, year, author, summary, publisher, pageCount, readPage, reading} = request.payload;
+    const { name, year, author, summary, publisher, pageCount, readPage, reading } = request.payload;
 
-    const id = nanoid(12);
+    const id = nanoid(16);
     const insertedAt = new Date().toISOString();
     const updatedAt = insertedAt;
     const finished = pageCount===readPage||false;
@@ -15,12 +15,11 @@ const addBookHandler = (request, h) => {
 
     books.push(newBook);
 
-    const isNotNull = books.filter((book)=>book.name==='').length>0;
     const isGreater = books.filter((book)=>book.readPage>book.pageCount).length>0;
     const isSuccess = books.filter((book)=>book.id===id).length>0;
 
     if (isSuccess) {
-        if (isNotNull) {
+        if (!name) {
             const response = h.response({
                 status: 'fail',
                 message: 'Gagal menambahkan buku. Mohon isi nama buku'
@@ -50,16 +49,40 @@ const addBookHandler = (request, h) => {
     const response = h.response({
         status: 'fail',
         message: 'Buku gagal ditambahkan'
-    })
+    });
     response.code(500);
     return response;
-}
+};
 
+// eslint-disable-next-line no-unused-vars
 const getAllBook = (request, h) => ({
     status: 'success',
     data: {
         books
     }
-})
+});
 
-module.exports = {addBookHandler, getAllBook};
+const getByIdBook = (request, h) => {
+    const {id} = request.params;
+
+    const book = books.filter(book=>book.id===id)[0];
+
+    if(book!==undefined){
+        return {
+            status: 'success',
+            data: {
+                book
+            }
+        }
+    }
+
+    const response = h.response({
+        status: 'fail',
+        message: 'Buku tidak ditemukan'
+    });
+    response.code(404);
+    return response;
+;}
+
+
+module.exports = { addBookHandler, getAllBook, getByIdBook };
