@@ -57,7 +57,12 @@ const addBookHandler = (request, h) => {
 const getAllBookHandler = (request, h) => {
     const {name, reading, finished} = request.query;
     if (name) {
-        const book = books.filter(book=>book.name);
+        const book = books.filter(book=>{
+            const str = book.name;
+            if(str.includes(name)){
+                return book;
+            }
+        });
         return {
             status: 'success',
             data: {
